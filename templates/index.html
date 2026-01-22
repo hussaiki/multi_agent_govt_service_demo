@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kerala Gov - AI Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Outfit:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f172a;
+            --secondary: #3b82f6;
+            --accent: #10b981;
+            --glass: rgba(255, 255, 255, 0.1);
+            --glass-blur: blur(20px);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 900px;
+            height: 700px;
+            background: var(--glass);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        header {
+            padding: 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            font-size: 24px;
+            background: linear-gradient(to right, #60a5fa, #34d399);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        #chat-window {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 16px 20px;
+            border-radius: 16px;
+            line-height: 1.6;
+            font-size: 15px;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background: var(--secondary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .ai-message {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom-left-radius: 4px;
+        }
+
+        .meta {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-area {
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+            display: flex;
+            gap: 15px;
+        }
+
+        input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px 24px;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: var(--secondary);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        button {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 0 30px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.5);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Kerala e-Gov Multi-Agent AI</h1>
+            <div style="font-size: 12px; opacity: 0.6;">Malayalam & English Interface</div>
+        </header>
+        <div id="chat-window">
+            <div class="message ai-message">
+                നമസ്കാരം! ഞാൻ കേരള സർക്കാരിന്റെ എഐ അസിസ്റ്റന്റ് ആണ്. നിങ്ങൾക്ക് എങ്ങനെ സഹായിക്കാം?
+                (Hello! I am the Kerala Government AI Assistant. How can I help you today?)
+            </div>
+        </div>
+        <form class="input-area" id="chat-form">
+            <input type="text" id="userInput" placeholder="Type in Malayalam or English..." autocomplete="off">
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+    <script>
+        const form = document.getElementById('chat-form');
+        const chatWindow = document.getElementById('chat-window');
+        const input = document.getElementById('userInput');
+
+        function appendMessage(text, isUser, meta = "") {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
+            msgDiv.innerText = text;
+
+            if (meta) {
+                const metaDiv = document.createElement('div');
+                metaDiv.className = 'meta';
+                metaDiv.innerText = meta;
+                msgDiv.appendChild(metaDiv);
+            }
+
+            chatWindow.appendChild(msgDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const text = input.value;
+            if (!text) return;
+
+            appendMessage(text, true);
+            input.value = '';
+
+            const formData = new FormData();
+            formData.append('message', text);
+
+            const response = await fetch('/chat', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            appendMessage(data.reply, false, `Agent: ${data.department} | Lang: ${data.language}`);
+        };
+    </script>
+</body>
+
+</html>

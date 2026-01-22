@@ -1,0 +1,33 @@
+{
+    "revenue": {
+        "possession_certificate": {
+            "name_ml": "കൈവശാവകാശ സർട്ടിഫിക്കറ്റ്",
+            "description_en": "Certificate verifying the possession of land/property.",
+            "requirements_en": [
+                "Aadhaar Card",
+                "Affidavit (specifying property details)",
+                "Building Tax Receipt",
+                "Voter ID",
+                "Encumbrance Certificate",
+                "Land Tax Receipt",
+                "Pattayam (Ownership document)",
+                "Sale Deed (Form 21)"
+            ],
+            "workflow": [
+                "Application submission (Online/Akshaya)",
+                "Document verification by Village Officer",
+                "Site inspection",
+                "Approval by Tehsildar (Rural) or RDO (Urban)",
+                "Certificate issuance (within 7 days)"
+            ]
+        }
+    },
+    "tax": {
+        "property_tax": {
+            "name_ml": "വസ്തു നികുതി",
+            "portal": "Sanchaya (sanchaya.lsgkerala.gov.in)",
+            "calculation_formula": "Base Value * Built-up Area * Age Factor * Building Type * Use Category * Floor Factor",
+            "documents_needed": ["Ward Number", "Door Number", "Previous Receipt"]
+        }
+    }
+}
