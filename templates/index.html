@@ -165,6 +165,44 @@
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
         }
+
+        .mic-button {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 16px;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mic-button:hover {
+            background: rgba(16, 185, 129, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .mic-button.recording {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: #ef4444;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
     </style>
 </head>
 
@@ -176,12 +214,20 @@
         </header>
         <div id="chat-window">
             <div class="message ai-message">
-                നമസ്കാരം! ഞാൻ കേരള സർക്കാരിന്റെ എഐ അസിസ്റ്റന്റ് ആണ്. നിങ്ങൾക്ക് എങ്ങനെ സഹായിക്കാം?
-                (Hello! I am the Kerala Government AI Assistant. How can I help you today?)
+                നമസ്കാരം! ഞാൻ കേരള സർക്കാരിന്റെ എഐ അസിസ്റ്റന്റ് ആണ്. നിങ്ങൾക്ക് എന്ത് സഹായമാണ് ആവശ്യം?
+                (Hello! I am the Kerala Government AI Assistant. What help do you need?)
             </div>
         </div>
         <form class="input-area" id="chat-form">
-            <input type="text" id="userInput" placeholder="Type in Malayalam or English..." autocomplete="off">
+            <button type="button" class="mic-button" id="micButton" title="Voice Input">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                </svg>
+            </button>
+            <input type="text" id="userInput" placeholder="Type or speak in Malayalam or English..." autocomplete="off">
             <button type="submit">Send</button>
         </form>
     </div>
@@ -226,6 +272,53 @@
             const data = await response.json();
             appendMessage(data.reply, false, `Agent: ${data.department} | Lang: ${data.language}`);
         };
+
+        // Voice Recognition Setup
+        const micButton = document.getElementById('micButton');
+        let recognition = null;
+
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            // Support both Malayalam and English
+            recognition.lang = 'ml-IN'; // Default to Malayalam, will auto-detect
+
+            recognition.onstart = () => {
+                micButton.classList.add('recording');
+            };
+
+            recognition.onend = () => {
+                micButton.classList.remove('recording');
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                input.value = transcript;
+                input.focus();
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                micButton.classList.remove('recording');
+                if (event.error === 'no-speech') {
+                    alert('No speech detected. Please try again.');
+                }
+            };
+
+            micButton.onclick = () => {
+                if (micButton.classList.contains('recording')) {
+                    recognition.stop();
+                } else {
+                    recognition.start();
+                }
+            };
+        } else {
+            micButton.style.display = 'none';
+            console.warn('Speech recognition not supported in this browser');
+        }
     </script>
 </body>
 
